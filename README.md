@@ -1,2 +1,2 @@
 # torchLessons
-Projects to learn PyTorch
+Projects to learn PyTorch 🔥
