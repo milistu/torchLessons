@@ -3,29 +3,29 @@ import numpy as np
 ### Torch documentation: https://pytorch.org/docs/stable/torch.html
 
 print('-'*100)
-### Create tensor 
-# Directly from data
+print(r'>>>Create tensor<<<') 
+print('Directly from data:')
 data = [[1, 2], [3, 4]]
 x_data = torch.tensor(data)
 print(f'Data: \n {data}')
 print(f'Tensor from data: \n {x_data}')
 
 print('-'*100)
-# From numpy
+print('From numpy:')
 np_array = np.array(data)
 x_np = torch.from_numpy(np_array)
 print(f'Numpy array: \n {np_array}')
 print(f'Tensor from numpy: \n {x_np}')
 
 print('-'*100)
-# From another tensor
+print('From another tensor:')
 x_ones = torch.ones_like(x_data)
 x_rand = torch.rand_like(x_data, dtype=torch.float)
 print(f'Ones Tensor: \n {x_ones}')
 print(f'Random Tensor: \n {x_rand}')
 
 print('-'*100)
-# With random or const values
+print('With random or const values:')
 shape = (2, 3,)
 rand_tensor = torch.rand(shape)
 ones_tensor = torch.ones(shape)
@@ -35,7 +35,7 @@ print(f'Ones Tensor: \n {ones_tensor}')
 print(f'Zeros Tensor: \n {zeros_tensor}')
 
 print('-'*100)
-### Tensor Atributes
+print(r'>>>Tensor Atributes<<<')
 # shape, datatype, stored device
 tensor = torch.rand(3,4)
 
@@ -44,14 +44,14 @@ print(f'Datatype of tensor: {tensor.dtype}')
 print(f'Device tensor is stored on: {tensor.device}') 
 
 print('-'*100)
-### Operations on Tensors
+print(r'>>>Operations on Tensors<<<')
 
-# We move our tensor to GPU if availble
+print('We move our tensor to GPU if availble')
 if torch.cuda.is_available():
     tensor = tensor.to("cuda")
 print(f'Device tensor is stored on: {tensor.device}')
 
-# Standard numpy-like indexing and slicing:
+print('Standard numpy-like indexing and slicing:')
 tensor = torch.ones(4, 4)
 print(f'First row: {tensor[0]}')
 print(f'First columns: {tensor[:, 0]}')
@@ -60,14 +60,14 @@ tensor[:, 1] = 0
 print(f'Tensor: \n {tensor}')
 
 print('-'*100)
-print(r'Joining tensors:')
+print('Joining tensors:')
 t1 = torch.cat([tensor, tensor, tensor], dim=1)
 t2 = torch.stack([tensor, tensor, tensor], dim=1)
 print(f'Tensor concatenate: \n {t1}')
 print(f'Tensor stacked: \n {t2}')
 
 print('-'*100)
-print(r'Arithmetic operations:')
+print('Arithmetic operations:')
 # This computes the matrix multiplication between two tensors. y1, y2, y3 will have the same value
 # ``tensor.T`` returns the transpose of a tensor
 y1 = tensor @ tensor.T
@@ -91,7 +91,7 @@ torch.mul(tensor, tensor, out=z3)
 print(f'After z3 = \n {z3}')
 
 print('-'*100)
-print(r'Single-element tensors: ')
+print('Single-element tensors: ')
 # If you have a one-element tensor, 
 # for example by aggregating all values of a tensor into one value, 
 # you can convert it to a Python numerical value using item():
@@ -100,7 +100,7 @@ agg_item = agg.item()
 print(agg_item, type(agg_item))
 
 print('-'*100)
-print(r'In-place operations:')
+print('In-place operations:')
 # Operations that store the result into the operand are called in-place. 
 # They are denoted by a _ suffix. For example: x.copy_(y), x.t_(), will change x.
 print(f'{tensor} \n')
