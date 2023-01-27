@@ -25,9 +25,9 @@ test_data = datasets.FashionMNIST(
 train_dataloader = DataLoader(training_data, batch_size=64)
 test_dataloader = DataLoader(test_data, batch_size=64)
 
-class NeuraNetwork(nn.Module):
+class NeuralNetwork(nn.Module):
     def __init__(self):
-        super(NeuraNetwork, self).__init__()
+        super(NeuralNetwork, self).__init__()
         self.flatten = nn.Flatten()
         self.linear_relu_stack = nn.Sequential(
             nn.Linear(28*28, 512),
@@ -42,7 +42,7 @@ class NeuraNetwork(nn.Module):
         logits = self.linear_relu_stack(x)
         return logits
 
-model = NeuraNetwork()
+model = NeuralNetwork()
 
 ## Hyperparameters
 '''
