@@ -6,6 +6,10 @@ from torchvision import datasets
 from torchvision.transforms import ToTensor
 from tqdm import tqdm
 
+## Try runing on GPU
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+print(f"Using {device} devide")
+
 ## Prerequisite Code
 
 training_data = datasets.FashionMNIST(
@@ -42,7 +46,7 @@ class NeuralNetwork(nn.Module):
         logits = self.linear_relu_stack(x)
         return logits
 
-model = NeuralNetwork()
+model = NeuralNetwork().to(device)
 
 ## Hyperparameters
 '''
@@ -70,8 +74,8 @@ def train_loop(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
     for batch, (X,y) in enumerate(dataloader):
         # Compute prediction and loss
-        pred = model(X)
-        loss = loss_fn(pred, y)
+        pred = model(X.to(device))
+        loss = loss_fn(pred, y.to(device))
 
         # Backpropagation
         optimizer.zero_grad()
@@ -89,9 +93,9 @@ def test_loop(dataloader, model, loss_fn):
 
     with torch.no_grad():
         for X, y in dataloader:
-            pred = model(X)
-            test_loss += loss_fn(pred, y).item()
-            correct += (pred.argmax(1) == y).type(torch.float).sum().item()
+            pred = model(X.to(device))
+            test_loss += loss_fn(pred, y.to(device)).item()
+            correct += (pred.argmax(1) == y.to(device)).type(torch.float).sum().item()
 
     test_loss /= num_batches
     correct /= size
@@ -105,6 +109,7 @@ if __name__ == "__main__":
         test_loop(test_dataloader, model, loss_fn)
 
     print("Done!")
+    print(f'Device on which model is runing: {next(model.parameters()).device}')
 
 
 
