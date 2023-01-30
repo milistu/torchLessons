@@ -53,3 +53,17 @@ test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=Tr
 
 ### Initialize network
 model = NN(input_size=input_size, num_classes=num_classes).to(device)
+
+### Loss and optimizer
+criterion = nn.CrossEntropyLoss()
+optmizer = optim.Adam(model.parameters(), lr=learning_rate)
+
+### Train Network
+for epoch in range(num_epochs):
+    for batch_idx, (data, targets) in enumerate(train_loader):
+        data = data.to(device)
+        targets = targets.to(device)
+
+        print(data.shape)
+        break
+    break
