@@ -64,6 +64,54 @@ for epoch in range(num_epochs):
         data = data.to(device)
         targets = targets.to(device)
 
-        print(data.shape)
-        break
-    break
+        # print(data.shape)
+        # print(data.reshape(data.shape[0], -1).shape)
+        # x = nn.Flatten() 
+        # y = x(data)
+        # print(y.size())
+
+        # Get correct shape
+        data = data.reshape(data.shape[0], -1)
+
+        # Forward
+        pred = model(data)
+        loss = criterion(pred, targets)
+
+        # Backward
+        optmizer.zero_grad()
+        loss.backward()
+
+        # Optimize: Gradient or Adam
+        optmizer.step()
+
+### Check accuracy on traninig & test to see how good is our model
+
+def check_accuracy(loader, model):
+    if loader.dataset.train:
+        print("Checking accuracy on training data")
+    else:
+        print("Checking accuracy on test data")
+
+    num_correct = 0
+    num_samples = 0
+    model.eval()
+
+    with torch.no_grad():
+        for x, y in loader:
+            x = x.to(device)
+            y = y.to(device)
+            x = x.reshape(x.shape[0], -1)
+
+            scores = model(x)
+            _, predictions = scores.max(1) # argmax
+            num_correct += (predictions == y).sum()
+            num_samples += predictions.size(0)
+
+        print(f"Got {num_correct} / {num_samples} with accuracy {float(num_correct)/float(num_samples)*100:.2f}")
+    
+    model.train()
+    # return acc 
+
+check_accuracy(train_loader, model)
+check_accuracy(test_loader, model)
+
