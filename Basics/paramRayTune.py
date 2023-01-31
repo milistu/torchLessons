@@ -6,6 +6,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+from torch.utils.data import DataLoader
 from torch.utils.data import random_split
 import torchvision
 import torchvision.transforms as transforms
@@ -52,31 +53,6 @@ class Net(nn.Module):
         x = self.fc3(x)
         return x
 
-
-
-
-
-
-
-
-#  PyTorch requires us to send our data to the GPU memory explicitly, like this:
-for i, data in enumerate(trainloader, 0):
-    inputs, labels = data
-    inputs, labels = inputs.to(device), labels.to(device)
-
-# Communicating with Ray Tun
-'''
-Here we first save a checkpoint and then report some metrics back to Ray Tune. 
-Specifically, we send the validation loss and accuracy back to Ray Tune. 
-Ray Tune can then use these metrics to decide which hyperparameter configuration lead to the best results. 
-These metrics can also be used to stop bad performing trials early in order to avoid wasting resources on those trials.
-'''
-with tune.checkpoint_dir(epoch) as checkpoint_dir:
-    path = os.path.join(checkpoint_dir, "checkpoint")
-    torch.save((net.state_dict(), optimizer.state_dict()), path)
-
-tune.report(loss=(val_loss / val_steps), accuracy = correct / total)
-
 def train_cifar(config, checkpoint_dir=None, data_dir=None):
     net = Net(config["l1"], config["l2"])
 
@@ -102,6 +78,77 @@ def train_cifar(config, checkpoint_dir=None, data_dir=None):
     test_abs = int(len(trainset) * 0.8) 
     train_subset, val_subset = random_split(trainset, [test_abs, len(trainset) - test_abs])
 
-    trainloader = torch.utils.data.DataLoader(
-        
+    trainloader = DataLoader(
+        train_subset,
+        batch_size=int(config['batch_size']),
+        shuffle=True,
+        num_workers=8
     )
+    valloader = DataLoader(
+        val_subset,
+        batch_size=int(config['batch_size']),
+        shuffle=True,
+        num_workers=8
+    )
+
+    # How much time to loop over the data
+    for epoch in range(10):
+        running_loss = 0.0
+        epoch_steps = 0
+        for i, data in enumerate(trainloader, 0):
+            # get the inputs; data is a list of [inputs, labels]
+            #  PyTorch requires us to send our data to the GPU memory explicitly, like this:
+            inputs, labels = data
+            inputs, labels = inputs.to(device), labels.to(device)
+
+            # zero the parameter gradients
+            optimizer.zero_grad()
+
+            # forward + backward + optimize
+            outputs = net(inputs)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+
+            # print statistics
+            running_loss += loss.item()
+            epoch_steps += 1
+            # print every 2000 mini-batches
+            if i % 2000 == 1999:
+                print("[%d, %5d] loss: %.3f" % (epoch + 1, i + 1, running_loss / epoch_steps))
+                running_loss = 0.0
+        
+        # Validation loss
+        val_loss = 0.0
+        val_steps = 0
+        total = 0
+        correct = 0
+        for i, data in enumerate(valloader, 0):
+            with torch.no_grad():
+                inputs, labels = data
+                inputs, labels = inputs.to(device), labels.to(device)
+
+                outputs = net(inputs)
+                _, predicted = torch.max(outputs.data, 1)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+
+                loss = criterion(outputs, labels)
+                val_loss += loss.cpu().numpy()
+                val_steps += 1
+
+        # Communicating with Ray Tun
+        '''
+        Here we first save a checkpoint and then report some metrics back to Ray Tune. 
+        Specifically, we send the validation loss and accuracy back to Ray Tune. 
+        Ray Tune can then use these metrics to decide which hyperparameter configuration lead to the best results. 
+        These metrics can also be used to stop bad performing trials early in order to avoid wasting resources on those trials.
+        '''
+        with tune.checkpoint_dir(epoch) as checkpoint_dir:
+            path = os.path.join(checkpoint_dir, "checkpoint")
+            torch.save((net.state_dict(), optimizer.state_dict()), path)
+
+        tune.report(loss=(val_loss / val_steps), accuracy = correct / total)    
+
+    print("Finished Training")
+        
