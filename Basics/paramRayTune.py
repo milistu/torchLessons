@@ -52,22 +52,56 @@ class Net(nn.Module):
         x = self.fc3(x)
         return x
 
-# The train function
-net = Net(config["l1"], config["l2"])
 
-if checkpoint_dir:
-    model_state, optimizer_state = torch.load(os.path.join(checpoint_dir, "checkpoint"))
-    net.load_state_dict(model_state)
-    optimizer.load_state_dict(optimizer_state)
 
-optimizer = optim.SGD(net.parameters(), lr=config["lr"], momentum=0.9)
 
-# Adding (multi) GPU support with DataParallel
-device = "cpu"
-if torch.cuda.is_available():
-    device = "cuda:0"
-    if torch.cuda.device_count() > 1:
-        net = nn.DataParallel(net)
-net.to(device)
+
+
+
 
 #  PyTorch requires us to send our data to the GPU memory explicitly, like this:
+for i, data in enumerate(trainloader, 0):
+    inputs, labels = data
+    inputs, labels = inputs.to(device), labels.to(device)
+
+# Communicating with Ray Tun
+'''
+Here we first save a checkpoint and then report some metrics back to Ray Tune. 
+Specifically, we send the validation loss and accuracy back to Ray Tune. 
+Ray Tune can then use these metrics to decide which hyperparameter configuration lead to the best results. 
+These metrics can also be used to stop bad performing trials early in order to avoid wasting resources on those trials.
+'''
+with tune.checkpoint_dir(epoch) as checkpoint_dir:
+    path = os.path.join(checkpoint_dir, "checkpoint")
+    torch.save((net.state_dict(), optimizer.state_dict()), path)
+
+tune.report(loss=(val_loss / val_steps), accuracy = correct / total)
+
+def train_cifar(config, checkpoint_dir=None, data_dir=None):
+    net = Net(config["l1"], config["l2"])
+
+    # Adding (multi) GPU support with DataParallel
+    device = "cpu"
+    if torch.cuda.is_available():
+        device = "cuda:0"
+        if torch.cuda.device_count() > 1:
+            net = nn.DataParallel(net)
+    net.to(device)
+
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.SGD(net.parameters(), lr=config["lr"], momentum=0.9)
+
+    if checkpoint_dir:
+        model_state, optimizer_state = torch.load(os.path.join(checkpoint_dir, "checkpoint"))
+        net.load_state_dict(model_state)
+        optimizer.load_state_dict(optimizer_state)
+
+    trainset, testset = load_data(data_dir)
+
+    # Split trainset to train and validation subset
+    test_abs = int(len(trainset) * 0.8) 
+    train_subset, val_subset = random_split(trainset, [test_abs, len(trainset) - test_abs])
+
+    trainloader = torch.utils.data.DataLoader(
+        
+    )
