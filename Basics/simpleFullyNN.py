@@ -25,7 +25,7 @@ class NN(nn.Module):
 
 ### Set device
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-print(f"Device used: {device}")
+print(f"🎰 Device used: {device}")
 
 ### Hyperparameters
 input_size = 784
