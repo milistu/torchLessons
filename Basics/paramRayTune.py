@@ -33,7 +33,6 @@ def load_data(data_dir='./data'):
 
 # Configurable NN
 # In this exp. we can specify the layer sizes of fully connected layers
-
 class Net(nn.Module):
     def __init__(self, l1=120, l2=84):
         super(Net, self).__init__()
@@ -152,3 +151,85 @@ def train_cifar(config, checkpoint_dir=None, data_dir=None):
 
     print("Finished Training")
         
+# Test set accuracy
+def test_accuracy(net, device='cpu'):
+    trainset, testset = load_data()
+
+    testloader = DataLoader(testset, batch_size=4, shuffle=False, num_workers=2)
+
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for data in testloader:
+            images, labels = data
+            images, labels = images.to(device), labels.to(device)
+            outputs = net(images)
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct += (predicted == 1).sum().item()
+
+    return correct / total
+
+def main(num_samples=10, max_num_epochs=10, gpus_per_trial=2):
+    data_dir = os.path.abspath("./data")
+    load_data(data_dir)
+    # Configuring the search space
+    config = {
+        'l1'        : tune.sample_from(lambda _: 2**np.random.randint(2, 9)),
+        'l2'        : tune.sample_from(lambda _: 2**np.random.randint(2, 9)),
+        'lr'        : tune.loguniform(1e-4, 1e-1),
+        'batch_size': tune.choice([2, 4, 8, 16])
+    }
+    '''
+    The tune.sample_from() function makes it possible to define your own sample methods to obtain hyperparameters. 
+    In this example, the l1 and l2 parameters should be powers of 2 between 4 and 256, so either 4, 8, 16, 32, 64, 128, or 256. 
+    The lr (learning rate) should be uniformly sampled between 0.0001 and 0.1. 
+    Lastly, the batch size is a choice between 2, 4, 8, and 16.
+
+    At each trial, Ray Tune will now randomly sample a combination of parameters from these search spaces. 
+    It will then train a number of models in parallel and find the best performing one among these. 
+    We also use the ASHAScheduler which will terminate bad performing trials early.
+    '''
+    scheduler = ASHAScheduler(
+        metric="loss",
+        mode="min",
+        max_t=max_num_epochs,
+        grace_period=1,
+        reduction_factor=2
+    )
+    reporter = CLIReporter(
+        # parameter_columns=["l1", "l2", "lr", "batch_size"],
+        metric_columns=["loss", "accuracy", "training_iteration"]
+    )
+    result = tune.run(
+        partial(train_cifar, data_dir=data_dir),
+        resources_per_trial={'cpu': 2, 'gpu': gpus_per_trial},
+        config=config,
+        num_samples=num_samples,
+        scheduler=scheduler,
+        progress_reporter=reporter,
+    )
+
+    best_trial = result.get_best_trial("loss", "min", "last")
+    print("Best trial config: {}".format(best_trial.config))
+    print("Best trial final validation loss: {}".format(best_trial.last_result["loss"]))
+    print("Best trial final validation accuracy: {}".format(best_trial.last_result["accuracy"]))
+
+    best_trained_model = Net(best_trial.config["l1"], best_trial.config["l2"])
+    device = "cpu"
+    if torch.cuda.is_available():
+        device = "cuda:0"
+        if torch.cuda.device_count() > 1:
+            best_trained_model = nn.DataParallel(best_trained_model)
+    best_trained_model.to(device)
+
+    best_checkpoint_dir = best_trial.checkpoint.value
+    model_state, optimizer_state = torch.load(os.path.join(best_checkpoint_dir, "checkpoint"))
+    best_trained_model.load_state_dict(model_state)
+
+    test_acc = test_accuracy(best_trained_model, device)
+    print("Best trial test set accuracy: {}".format(test_acc))
+
+if __name__=="__main__":
+    main(num_samples=10, max_num_epochs=10, gpus_per_trial=0)
+
