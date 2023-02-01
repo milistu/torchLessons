@@ -7,6 +7,8 @@ from torch.utils.data import DataLoader
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 
+import matplotlib.pyplot as plt
+
 ### Create Fully Connected Network
 class NN(nn.Module):
     def __init__(self, input_size, num_classes):
@@ -98,12 +100,26 @@ def check_accuracy(loader, model):
 
     with torch.no_grad():
         for x, y in loader:
+            # print(f" {x}")
+            # print(f"Shape: {x.shape}")
             x = x.to(device)
             y = y.to(device)
             x = x.reshape(x.shape[0], -1)
 
             scores = model(x)
             _, predictions = scores.max(1) # argmax
+            # PLOT
+            fig, axes = plt.subplots(8,8)
+            fig.subplots_adjust(hspace=1)
+            axes = axes.ravel()
+            titles = predictions.cpu().numpy()
+            x = x.cpu().numpy().reshape(-1, 28, 28)
+            for i, ax in enumerate(axes):
+                ax.imshow(x[i])
+                ax.set_title(f"Pred: {titles[i]}")
+                ax.axis("off")
+            plt.show()
+            # PLOT
             num_correct += (predictions == y).sum()
             num_samples += predictions.size(0)
 
