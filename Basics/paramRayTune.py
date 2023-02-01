@@ -166,7 +166,7 @@ def test_accuracy(net, device='cpu'):
             outputs = net(images)
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
-            correct += (predicted == 1).sum().item()
+            correct += (predicted == labels).sum().item()
 
     return correct / total
 
@@ -223,7 +223,7 @@ def main(num_samples=10, max_num_epochs=10, gpus_per_trial=2):
             best_trained_model = nn.DataParallel(best_trained_model)
     best_trained_model.to(device)
 
-    best_checkpoint_dir = best_trial.checkpoint.value
+    best_checkpoint_dir = best_trial.checkpoint.dir_or_data
     model_state, optimizer_state = torch.load(os.path.join(best_checkpoint_dir, "checkpoint"))
     best_trained_model.load_state_dict(model_state)
 
@@ -231,5 +231,5 @@ def main(num_samples=10, max_num_epochs=10, gpus_per_trial=2):
     print("Best trial test set accuracy: {}".format(test_acc))
 
 if __name__=="__main__":
-    main(num_samples=10, max_num_epochs=10, gpus_per_trial=0)
+    main(num_samples=1, max_num_epochs=1, gpus_per_trial=1)
 
