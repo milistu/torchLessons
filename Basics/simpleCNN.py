@@ -43,17 +43,22 @@ class CNN(nn.Module):
         x = self.fc1(x)
 
         return x 
+# # Check CNN class
+# model = CNN()
+# x = torch.randn(64, 1, 28, 28)
+# print(model(x).shape)
+# exit()
 
 ### Set device
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f"🎰 Device used: {device}")
 
 ### Hyperparameters
-input_size = 784
+in_channel = 1
 num_classes = 10
 learning_rate = 0.001
 batch_size = 64
-num_epochs = 1
+num_epochs = 5
 
 ### Load Data
 train_dataset = datasets.MNIST(
@@ -73,7 +78,7 @@ test_dataset = datasets.MNIST(
 test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=True)
 
 ### Initialize network
-model = NN(input_size=input_size, num_classes=num_classes).to(device)
+model = CNN().to(device)
 
 ### Loss and optimizer
 criterion = nn.CrossEntropyLoss()
@@ -90,9 +95,6 @@ for epoch in range(num_epochs):
         # x = nn.Flatten() 
         # y = x(data)
         # print(y.size())
-
-        # Get correct shape
-        data = data.reshape(data.shape[0], -1)
 
         # Forward
         pred = model(data)
@@ -123,7 +125,6 @@ def check_accuracy(loader, model):
             # print(f"Shape: {x.shape}")
             x = x.to(device)
             y = y.to(device)
-            x = x.reshape(x.shape[0], -1)
 
             scores = model(x)
             _, predictions = scores.max(1) # argmax
