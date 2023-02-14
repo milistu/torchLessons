@@ -9,22 +9,6 @@ import torchvision.transforms as transforms
 
 import matplotlib.pyplot as plt
 
-### Create Fully Connected Network
-class NN(nn.Module):
-    def __init__(self, input_size, num_classes):
-        super(NN, self).__init__()
-        self.fc1 = nn.Linear(input_size, 50)
-        self.fc2 = nn.Linear(50, num_classes)
-
-    def forward(self, x):
-        x = F.relu(self.fc1(x))
-        x = self.fc2(x)
-        return x
-
-# model = NN(784, 10)
-# x = torch.randn(64, 784)
-# print(f"Initial check, expecting (64,10): {model(x).shape}")
-
 ### CNN
 class CNN(nn.Module):
     def __init__(self, in_channels = 1, num_classes = 10):
@@ -46,7 +30,7 @@ class CNN(nn.Module):
 # # Check CNN class
 # model = CNN()
 # x = torch.randn(64, 1, 28, 28)
-# print(model(x).shape)
+# print(f"Initial check, expecting (64,10): {model(x).shape}")
 # exit()
 
 ### Set device
