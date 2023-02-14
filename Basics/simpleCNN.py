@@ -128,18 +128,18 @@ def check_accuracy(loader, model):
 
             scores = model(x)
             _, predictions = scores.max(1) # argmax
-            # PLOT
-            fig, axes = plt.subplots(8,8)
-            fig.subplots_adjust(hspace=1)
-            axes = axes.ravel()
-            titles = predictions.cpu().numpy()
-            x = x.cpu().numpy().reshape(-1, 28, 28)
-            for i, ax in enumerate(axes):
-                ax.imshow(x[i])
-                ax.set_title(f"Pred: {titles[i]}")
-                ax.axis("off")
-            plt.show()
-            # PLOT
+            # # PLOT
+            # fig, axes = plt.subplots(8,8)
+            # fig.subplots_adjust(hspace=1)
+            # axes = axes.ravel()
+            # titles = predictions.cpu().numpy()
+            # x = x.cpu().numpy().reshape(-1, 28, 28)
+            # for i, ax in enumerate(axes):
+            #     ax.imshow(x[i])
+            #     ax.set_title(f"Pred: {titles[i]}")
+            #     ax.axis("off")
+            # plt.show()
+            # # PLOT
             num_correct += (predictions == y).sum()
             num_samples += predictions.size(0)
 
