@@ -7,6 +7,8 @@ import numpy as np
 import imutils
 from PIL import Image
 import torch
+import torchvision.transforms.functional as TF
+from torchvision import datasets, models, transforms
 
 def getData():
     print(f"[INFO] Current Working Directory: {os.getcwd()}")
@@ -46,6 +48,19 @@ class Transforms():
         new_landmarks = new_landmarks + 0.5
 
         return Image.fromarray(image), new_landmarks
+    
+    def resize(self, image, landmarks, img_size):
+        image = TF.resize(image, img_size)
+        return image, landmarks
+    
+    def color_jitter(self, image, landmarks):
+        color_jitter = transforms.ColorJitter(brightness=0.3,
+                                              contrast=0.3,
+                                              saturation=0.3,
+                                              hue=0.1)
+        image = color_jitter(image)
+        return image, landmarks
+    
 
 
 
