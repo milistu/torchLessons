@@ -51,6 +51,16 @@ def visualizeData():
     plt.imshow(mping.imread('data/ibug_300W_large_face_landmark_dataset/helen/trainset/100032540_1.jpg'))
     plt.scatter(landmarks[:, 0], landmarks[:, 1], s = 5, c = 'g')
     plt.show()
+
+def visualizeTransforms():
+    dataset = FaceLandmarksDataset(Transforms())
+
+    image, landmarks = dataset[0]
+    landmarks = (landmarks + 0.5) * 224
+    plt.figure(figsize=(10, 10))
+    plt.imshow(image.numpy().squeeze(), cmap='gray')
+    plt.scatter(landmarks[:, 0], landmarks[:, 1], s = 8)
+    plt.show()
     
 class Transforms():
     def __init__(self): pass
@@ -121,7 +131,7 @@ class FaceLandmarksDataset(Dataset):
         self.landmarks = []
         self.crops = []
         self.transform = transform
-        self.root_dir = 'data/ibug_300W_large_face_landmark_dataset/labels_ibug_300W_train.xml'
+        self.root_dir = 'data/ibug_300W_large_face_landmark_dataset'
 
         # Acces data info 
         for filename in root[2]:
@@ -160,5 +170,6 @@ class FaceLandmarksDataset(Dataset):
 if __name__ == '__main__':
     getData()
     visualizeData()
+    visualizeTransforms()
     # Add data example
 
