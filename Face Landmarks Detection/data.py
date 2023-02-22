@@ -50,6 +50,7 @@ def visualizeData():
     plt.figure(figsize=(10, 10))
     plt.imshow(mping.imread('data/ibug_300W_large_face_landmark_dataset/helen/trainset/100032540_1.jpg'))
     plt.scatter(landmarks[:, 0], landmarks[:, 1], s = 5, c = 'g')
+    plt.title("Raw Data")
     plt.show()
 
 def visualizeTransforms():
@@ -60,6 +61,7 @@ def visualizeTransforms():
     plt.figure(figsize=(10, 10))
     plt.imshow(image.numpy().squeeze(), cmap='gray')
     plt.scatter(landmarks[:, 0], landmarks[:, 1], s = 8)
+    plt.title("Transformed Data")
     plt.show()
     
 class Transforms():
