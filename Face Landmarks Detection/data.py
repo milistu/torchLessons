@@ -8,6 +8,9 @@ import cv2
 import numpy as np
 import imutils
 from PIL import Image
+from matplotlib import pyplot as plt
+import matplotlib.image as mping # TODO: Use only one lib for image viz, TURBO JPEG
+
 import torch
 import torchvision.transforms.functional as TF
 from torchvision import datasets, models, transforms
@@ -33,8 +36,22 @@ def getData():
         print(f"[INFO] Dataset already present")
 
 def visualizeData():
-    pass
+    file = open("data/ibug_300W_large_face_landmark_dataset/helen/trainset/100032540_1.pts")
+    points = file.readlines()[3:-1]
 
+    landmarks = []
+
+    for point in points:
+        x,y = point.split(' ')
+        landmarks.append([np.floor(float(x)), np.floor(float(y[:-1]))])
+    
+    landmarks = np.array(landmarks)
+
+    plt.figure(figsize=(10, 10))
+    plt.imshow(mping.imread('data/ibug_300W_large_face_landmark_dataset/helen/trainset/100032540_1.jpg'))
+    plt.scatter(landmarks[:, 0], landmarks[:, 1], s = 5, c = 'g')
+    plt.show()
+    
 class Transforms():
     def __init__(self): pass
 
@@ -142,5 +159,6 @@ class FaceLandmarksDataset(Dataset):
 
 if __name__ == '__main__':
     getData()
+    visualizeData()
     # Add data example
 
