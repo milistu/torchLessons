@@ -1,8 +1,14 @@
 import torch
+import torch.nn as nn
+import torch.optim as optim
 from torch.utils.data import DataLoader, Dataset, random_split
 
-import data
 import sys
+import time
+import numpy as np
+
+import data
+import network as net
 
 def print_overwrite(step, total_step, loss, operation):
     sys.stdout.write('\r')
@@ -34,6 +40,56 @@ images, landmarks = next(iter(train_loader))
 
 print(f"Test images size: {images.shape}")
 print(f"Test landmarks size: {landmarks.shape}")
+
+
+### Set device
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print(f"🎰 Device used: {device}")
+
+torch.autograd.set_detect_anomaly(True)
+network = net.Network()
+network.to(device)
+
+criterion = nn.MSELoss()
+optimizer = optim.Adam(network.parameters(), lr=0.0001)
+
+loss_min = np.inf
+num_epochs = 20
+
+start_time = time.time()
+for epoch in range(1, num_epochs + 1):
+
+    loss_train = 0
+    loss_valid = 0
+    running_loss = 0
+
+    network.train()
+    for step in range(1, len(train_loader)+1):
+
+        images, landmarks = next(iter(train_loader))
+
+        images = images.to(device)
+        landmarks = landmarks.view(landmarks.seize(0), -1).to(device)
+
+        predictions = network(images)
+        
+        # clear all the gradients before calculating new
+        optimizer.zero_grad()
+
+        # find the loss for the current step
+        loss_train_step = criterion(predictions, landmarks)
+
+        # calculate the gradients
+        loss_train_step.backward()
+
+        # update the parameters
+        optimizer.step()
+
+        loss_train += loss_train_step.item()
+        running_loss = loss_train/step
+
+        print_overwrite(step, len(train_loader), running_loss, 'train')
+    
 
 
 
