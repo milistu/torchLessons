@@ -2,4 +2,5 @@ data
 model_weights.pth
 model.pth
 ppo_Ant_saved_model.zip
-Face*Landmarks*Detection/bucket.ipynb
+Face_Landmarks_Detection/bucket.ipynb
+Face_Landmarks_Detection/__pycache__
