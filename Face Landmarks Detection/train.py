@@ -108,7 +108,17 @@ for epoch in range(1, num_epochs + 1):
             running_loss = loss_valid/step
 
             print_overwrite(step, len(valid_loader), running_loss, 'valid')
-        
+    
+    loss_train /= len(train_loader)
+    loss_valid /= len(valid_loader)
+
+    print('\n-------------------------------------------------------------')
+    print(f'Epoch: {epoch}  Train Loss: {loss_train:.4f}  Valid Loss: {loss_valid:.4f}')
+    print('-------------------------------------------------------------')
+
+    if loss_valid < loss_min:
+        loss_min = loss_valid
+        torch.save(network.state_dict(), 'Face Landmarks Detection/weights')
     
 
 
