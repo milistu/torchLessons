@@ -6,6 +6,7 @@ import xml.etree.ElementTree as ET
 
 import cv2
 import numpy as np
+from math import *
 import imutils
 from PIL import Image
 from matplotlib import pyplot as plt
@@ -72,8 +73,8 @@ class Transforms():
         angle = random.uniform(-angle, +angle)
 
         transformation_matrix = torch.tensor([
-            [+np.cos(np.radians(angle)), -np.sin(np.radians(angle))],
-            [+np.sin(np.radians(angle)), +np.cos(np.radians(angle))]
+            [+cos(radians(angle)), -sin(radians(angle))],
+            [+sin(radians(angle)), +cos(radians(angle))]
         ])
 
         image = imutils.rotate(np.array(image), angle)
@@ -149,7 +150,7 @@ class FaceLandmarksDataset(Dataset):
                 landmark.append([x_coordinate, y_coordinate])
             self.landmarks.append(landmark)
 
-        self.landmarks = np.array(self.landmarks, dtype=np.float32)
+        self.landmarks = np.array(self.landmarks).astype('float32')
 
         assert len(self.image_filenames) == len(self.landmarks)
 
