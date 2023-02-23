@@ -89,6 +89,26 @@ for epoch in range(1, num_epochs + 1):
         running_loss = loss_train/step
 
         print_overwrite(step, len(train_loader), running_loss, 'train')
+
+    network.eval()
+    with torch.no_grad():
+        for step in range(1, len(valid_loader)+1):
+
+            images, landmarls = next(iter(valid_loader))
+
+            images = images.to(device)
+            landmarks = landmarks.view(landmarks.size(0), -1).to(device)
+
+            predictions = network(images)
+
+            # find the loss for the current step
+            loss_valid_step = criterion(predictions, landmarks)
+
+            loss_valid += loss_valid_step.item()
+            running_loss = loss_valid/step
+
+            print_overwrite(step, len(valid_loader), running_loss, 'valid')
+        
     
 
 
