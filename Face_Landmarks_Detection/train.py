@@ -6,16 +6,19 @@ from torch.utils.data import DataLoader, Dataset, random_split
 import sys
 import time
 import numpy as np
+import os
 
 import data
 import network as net
 
+print(f"[INFO] Current Working Directory: {os.getcwd()}")
+
 def print_overwrite(step, total_step, loss, operation):
     sys.stdout.write('\r')
     if operation == 'train':
-        sys.stdout.write(f"Train Steps: {step/total_step}  Loss: {loss:.4f} ")
+        sys.stdout.write(f"Train Steps: {step}/{total_step}  Loss: {loss:.4f} ")
     else:
-        sys.stdout.write(f"Valid Steps: {step/total_step}  Loss: {loss:.4f} ")
+        sys.stdout.write(f"Valid Steps: {step}/{total_step}  Loss: {loss:.4f} ")
     
     sys.stdout.flush()
 
@@ -53,6 +56,20 @@ network.to(device)
 criterion = nn.MSELoss()
 optimizer = optim.Adam(network.parameters(), lr=0.0001)
 
+# batch_datas = torch.randn(8, 1, 224, 224)
+# batch_labels = torch.randn(8, 68, 2)
+
+# batch_datas = batch_datas.to(device)
+# batch_labels = batch_labels.view(batch_labels.size(0), -1).to(device)
+
+# # predict speed
+# pred = network(batch_datas)            
+# loss_each = criterion( pred, batch_labels )
+# loss_all = torch.mean(loss_each)
+# loss_all.backward()
+
+# exit()
+
 loss_min = np.inf
 num_epochs = 20
 
@@ -69,9 +86,10 @@ for epoch in range(1, num_epochs + 1):
         images, landmarks = next(iter(train_loader))
 
         images = images.to(device)
-        landmarks = landmarks.view(landmarks.seize(0), -1).to(device)
-
+        landmarks = landmarks.view(landmarks.size(0), -1).to(device)
+        # print(type(landmarks))
         predictions = network(images)
+        # print(type(predictions))
         
         # clear all the gradients before calculating new
         optimizer.zero_grad()
@@ -94,7 +112,7 @@ for epoch in range(1, num_epochs + 1):
     with torch.no_grad():
         for step in range(1, len(valid_loader)+1):
 
-            images, landmarls = next(iter(valid_loader))
+            images, landmarks = next(iter(valid_loader))
 
             images = images.to(device)
             landmarks = landmarks.view(landmarks.size(0), -1).to(device)
@@ -118,7 +136,12 @@ for epoch in range(1, num_epochs + 1):
 
     if loss_valid < loss_min:
         loss_min = loss_valid
-        torch.save(network.state_dict(), 'Face Landmarks Detection/weights')
+        torch.save(network.state_dict(), 'Face_Landmarks_Detection/weights/face_landmarks.pth')
+        print(f"\nMinimum Validation Loss of {loss_min} at epoch {epoch}/{num_epochs}")
+        print("Model Saved\n")
+
+print("Training Complete")
+print(f"Total Elapsed Time: {time.time() - start_time} s")
     
 
 
