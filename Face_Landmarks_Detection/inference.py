@@ -51,7 +51,8 @@ with torch.no_grad():
         plt.imshow(images[img_num].cpu().numpy().transpose(1, 2, 0).squeeze(), cmap='gray')
         plt.scatter(predictions[img_num, :, 0], predictions[img_num, :, 1], c = 'r', s = 5)
         plt.scatter(landmarks[img_num, :, 0], landmarks[img_num, :, 1], c = 'g', s = 5)
-    plt.show()
-    
+
 print(f"Total number of test images: {len(valid_dataset)}")
 print(f"Elapsed Time: {time.time() - start_time}")
+plt.title("Inference results")
+plt.show()
