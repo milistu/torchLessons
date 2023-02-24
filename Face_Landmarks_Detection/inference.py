@@ -41,18 +41,18 @@ with torch.no_grad():
     images = images.to(device)
     landmarks = (landmarks + 0.5) * 244
 
-    predictions = (best_network(images).cpu() + 0.5) * 224
-    predictions = predictions.view(-1, 68, 2)
+    predictions = best_network(images)
+    predictions = (predictions.view(-1, 68, 2).cpu().numpy() + 0.5) * 224
 
-    plt.figure(figsize=(10, 40))
+    plt.figure(figsize=(10, 10))
 
     for img_num in range(8):
         plt.subplot(2, 4, img_num+1)
-        plt.imshow(images[img_num].cpu().numpy().transpose(1, 2, 0).squeeze(), cmap='gray')
+        plt.imshow(images[img_num].cpu().numpy().squeeze(), cmap='gray')
         plt.scatter(predictions[img_num, :, 0], predictions[img_num, :, 1], c = 'r', s = 5)
         plt.scatter(landmarks[img_num, :, 0], landmarks[img_num, :, 1], c = 'g', s = 5)
 
 print(f"Total number of test images: {len(valid_dataset)}")
 print(f"Elapsed Time: {time.time() - start_time}")
-plt.title("Inference results")
+plt.suptitle("Inference results")
 plt.show()
