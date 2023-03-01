@@ -153,6 +153,25 @@ def train():
                 running_loss = 0.0
     print('Finished Training')
 
+def test():
+    # 1. gets the probability predictions in a test_size x num_classes Tensor
+    # 2. gets the preds in a test_size Tensor
+    
+    class_probs = []
+    class_label = []
+
+    with torch.no_grad():
+        for data in testloader:
+            images, labels = data
+            output = net(images)
+            class_probs_batch = [F.softmax(el, dim=0) for el in output]
+
+            class_probs.append(class_probs_batch)
+            class_label.append(labels)
+
+    test_probs = torch.cat([torch.stack(batch) for batch in class_probs])
+    test_label = torch.cat(class_label)
+
 
 if __name__ == '__main__':
     # default 'log_dir' is "runs" - we'll be more specific here
