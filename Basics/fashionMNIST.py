@@ -63,7 +63,7 @@ class Net(nn.Module):
         self.fc2 = nn.Linear(120, 84)
         self.fc3 = nn.Linear(84, 10)
     
-    def forwrd(self, x):
+    def forward(self, x):
         x = self.pool(F.relu(self.conv1(x)))
         x = self.pool(F.relu(self.conv2(x)))
         x = x.view(-1, 16 * 4 * 4)
@@ -94,4 +94,8 @@ if __name__ == '__main__':
 
     # wtite to tensorboard
     writer.add_image('four_fashion_mnist_images', img_grid)
+
+    # visualize model structure
+    writer.add_graph(net, images)
+    writer.close()
     
