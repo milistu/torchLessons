@@ -97,6 +97,20 @@ def plot_classes_preds(net, images, labels):
 
     return fig
 
+def add_pr_curve_tensorboard(class_index, test_probs, test_label, global_step = 0):
+    '''
+    Takes in a "class_index" from 0 to 9 and 
+    plots the corresponding precision-recall curve
+    '''
+    tensorboard_truth = test_label == class_index
+    tensorboard_probs = test_probs[:, class_index]
+
+    writer.add_pr_curve(classes[class_index],
+                        tensorboard_truth,
+                        tensorboard_probs,
+                        global_step=global_step)
+    writer.close()
+
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
@@ -172,6 +186,7 @@ def test():
     test_probs = torch.cat([torch.stack(batch) for batch in class_probs])
     test_label = torch.cat(class_label)
 
+    return test_probs, test_label
 
 if __name__ == '__main__':
     # default 'log_dir' is "runs" - we'll be more specific here
@@ -206,3 +221,8 @@ if __name__ == '__main__':
     writer.close()
 
     train()
+    test_probs, test_label = test()
+
+    # plot all the pr curves
+    for i in range(len(classes)):
+        add_pr_curve_tensorboard(i, test_probs, test_label)
