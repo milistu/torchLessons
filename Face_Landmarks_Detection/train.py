@@ -2,9 +2,11 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, Dataset, random_split
+from torch.utils.tensorboard import SummaryWriter
 
 import sys
 import time
+from datetime import datetime
 import numpy as np
 import os
 
@@ -107,9 +109,15 @@ def train(train_loader, valid_loader):
             optimizer.step()
 
             loss_train += loss_train_step.item()
-            running_loss = loss_train/step
+            # running_loss = loss_train/step
 
-            print_overwrite(step, len(train_loader), running_loss, 'train')
+            if step % 5 == 4:
+                print("USAO")
+                writer.add_scalar('training loss',
+                                  loss_train / 5,
+                                  epoch * len(train_loader) + step)
+                loss_train = 0.0
+            # print_overwrite(step, len(train_loader), running_loss, 'train')
 
         network.eval()
         with torch.no_grad():
@@ -139,7 +147,7 @@ def train(train_loader, valid_loader):
 
         if loss_valid < loss_min:
             loss_min = loss_valid
-            torch.save(network.state_dict(), 'Face_Landmarks_Detection/weights/face_landmarks' + str(epoch) + '.pth')
+            torch.save(network.state_dict(), 'Face_Landmarks_Detection/weights/3_4_23/face_landmarks' + str(epoch) + '.pth')
             print(f"\nMinimum Validation Loss of {loss_min} at epoch {epoch}/{num_epochs}")
             print("Model Saved\n")
 
@@ -147,10 +155,14 @@ def train(train_loader, valid_loader):
     print(f"Total Elapsed Time: {time.time() - start_time} s")
     
 if __name__ == "__main__":
+    # Setup TensorBoard
+    now = datetime.now()
+    date_time = now.strftime("%d_%m_%Y__%H_%M_%S")
+    writer = SummaryWriter('Face_Landmarks_Detection/runs/face_landmarks-' + date_time)
 
     train_loader, valid_loader = createDataset()
     train(train_loader, valid_loader)
-    
+
 
 
 
