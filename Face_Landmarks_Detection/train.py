@@ -76,7 +76,7 @@ def train(train_loader, valid_loader):
     # exit()
 
     loss_min = np.inf
-    num_epochs = 20
+    num_epochs = 100
 
     start_time = time.time()
     for epoch in range(1, num_epochs + 1):
