@@ -109,15 +109,15 @@ def train(train_loader, valid_loader):
             optimizer.step()
 
             loss_train += loss_train_step.item()
-            # running_loss = loss_train/step
+            running_loss = loss_train/step
 
-            if step % 5 == 4:
-                print("USAO")
-                writer.add_scalar('training loss',
-                                  loss_train / 5,
-                                  epoch * len(train_loader) + step)
-                loss_train = 0.0
-            # print_overwrite(step, len(train_loader), running_loss, 'train')
+            # if step % 5 == 4:
+            #     print("USAO")
+            #     writer.add_scalar('training loss',
+            #                       loss_train / 5,
+            #                       epoch * len(train_loader) + step)
+            #     loss_train = 0.0
+            print_overwrite(step, len(train_loader), running_loss, 'train')
 
         network.eval()
         with torch.no_grad():
@@ -141,13 +141,20 @@ def train(train_loader, valid_loader):
         loss_train /= len(train_loader)
         loss_valid /= len(valid_loader)
 
+        writer.add_scalar('training loss',
+                            loss_train,
+                            epoch)
+        writer.add_scalar('validation loss',
+                            loss_valid,
+                            epoch)
+
         print('\n-------------------------------------------------------------')
         print(f'Epoch: {epoch}  Train Loss: {loss_train:.4f}  Valid Loss: {loss_valid:.4f}')
         print('-------------------------------------------------------------')
 
         if loss_valid < loss_min:
             loss_min = loss_valid
-            torch.save(network.state_dict(), 'Face_Landmarks_Detection/weights/3_4_23/face_landmarks' + str(epoch) + '.pth')
+            torch.save(network.state_dict(), 'Face_Landmarks_Detection/weights/3_5_23/face_landmarks' + str(epoch) + '.pth')
             print(f"\nMinimum Validation Loss of {loss_min} at epoch {epoch}/{num_epochs}")
             print("Model Saved\n")
 
