@@ -1,4 +1,7 @@
 import os
+import numpy as np
+import matplotlib.pyplot as plt
+
 import torch 
 import torchvision
 import torchvision.transforms as transforms
@@ -32,8 +35,25 @@ def datasets(batch_size:int = 4):
 
     return trainloader, testloader
 
+# HELPERS:
+
+def imshow(img):
+    img = img / 2 + 0.5 # unnormalize
+    np_img = img.numpy()
+
+    plt.imshow(np.transpose(np_img, (1, 2, 0)))
+    plt.show()
+
 
 if __name__ == '__main__':
     print(f"Current working directory: {os.getcwd()}")
-    
-    trainloader, testloader = datasets()
+
+    batch_size = 4
+    trainloader, testloader = datasets(batch_size)
+
+    dataiter = iter(trainloader)
+    images, labels = next(dataiter)
+
+    print(' '.join(f'{classes[labels[j]]:5s}' for j in range(batch_size)))
+    imshow(torchvision.utils.make_grid(images))
+
