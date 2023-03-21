@@ -1,5 +1,5 @@
 os
 numpy
-torch
+torch==1.12.1+cu113 
 torchsummary
 matplotlib
