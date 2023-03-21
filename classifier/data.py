@@ -46,7 +46,7 @@ def imshow(img):
 
 
 if __name__ == '__main__':
-    print(f"Current working directory: {os.getcwd()}")
+    print(f"[INFO] Current working directory: {os.getcwd()}")
 
     batch_size = 4
     trainloader, testloader = datasets(batch_size)
