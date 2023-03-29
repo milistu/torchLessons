@@ -44,6 +44,21 @@ def imshow(img):
     plt.imshow(np.transpose(np_img, (1, 2, 0)))
     plt.show()
 
+def imshow_my(img, labels):
+    img = img / 2 + 0.5
+    img = img.numpy()
+    labels = labels.numpy()
+
+    fig = plt.figure()
+    fig.tight_layout()
+
+    for i in range(img.shape[0]):
+        plt.subplot(1, img.shape[0], i+1)
+        plt.imshow(np.transpose(img[i], (1, 2, 0)))
+        plt.subplots_adjust(wspace=0.5)
+        plt.title(classes[labels[i]])
+    plt.show()
+
 
 if __name__ == '__main__':
     print(f"[INFO] Current working directory: {os.getcwd()}")
@@ -54,6 +69,9 @@ if __name__ == '__main__':
     dataiter = iter(trainloader)
     images, labels = next(dataiter)
 
-    print(' '.join(f'{classes[labels[j]]:5s}' for j in range(batch_size)))
-    imshow(torchvision.utils.make_grid(images))
+    # print(' '.join(f'{classes[labels[j]]:5s}' for j in range(batch_size)))
+    # print(type(images))    
+    # print(images.shape)
+    # imshow(torchvision.utils.make_grid(images))
+    imshow_my(images, labels)
 
