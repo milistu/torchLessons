@@ -37,14 +37,14 @@ def datasets(batch_size:int = 4):
 
 # HELPERS:
 
-def imshow(img):
+def imshow2(img):
     img = img / 2 + 0.5 # unnormalize
     np_img = img.numpy()
 
     plt.imshow(np.transpose(np_img, (1, 2, 0)))
     plt.show()
 
-def imshow_my(img, labels):
+def imshow(img, labels):
     img = img / 2 + 0.5
     img = img.numpy()
     labels = labels.numpy()
@@ -73,5 +73,5 @@ if __name__ == '__main__':
     # print(type(images))    
     # print(images.shape)
     # imshow(torchvision.utils.make_grid(images))
-    imshow_my(images, labels)
+    imshow(images, labels)
 
