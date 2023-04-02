@@ -7,3 +7,6 @@ Face_Landmarks_Detection/__pycache__
 Face_Landmarks_Detection/weights
 runs
 .yoloface
+classifier/logs
+classifier/models
+classifier/__pycache__
