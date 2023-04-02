@@ -12,7 +12,8 @@ classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship'
 def datasets(batch_size:int = 4):
     transform = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)), 
+        transforms.RandomVerticalFlip(), transforms.RandomHorizontalFlip()
     ])
 
     trainset = torchvision.datasets.CIFAR10(
