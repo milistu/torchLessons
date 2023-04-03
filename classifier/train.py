@@ -13,7 +13,7 @@ from tqdm import tqdm
 from pathlib import Path
 
 from nn import Net
-from data import datasets
+from dataset import datasets
 
 def setDevice():
     """
@@ -30,11 +30,16 @@ def train(epoch:int):
     model.train()
     running_loss = 0.
     train_loss = 0.
+    total = 0
+    correct = 0
 
     for i, (inputs, labels) in enumerate(train_loader, 0):
         inputs, labels = inputs.to(device), labels.to(device)
         optimizer.zero_grad()
         outputs = model(inputs)
+        _, predicted = torch.max(outputs, 1)
+        total += labels.size(0)
+        correct += (predicted == labels).sum().item()
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
@@ -47,18 +52,23 @@ def train(epoch:int):
             running_loss = 0.
 
     train_loss /= len(train_loader)
-    return train_loss
+    train_acc = correct / total
+    return train_loss, train_acc
 
 def test(epoch:int):
     model.eval()
     running_loss = 0.
     test_loss = 0.
+    total = 0
+    correct = 0
 
     with torch.no_grad():
         for i, (inputs, labels), in enumerate(test_loader):
             inputs, labels = inputs.to(device), labels.to(device)
-
             outputs = model(inputs)
+            _, predicted = torch.max(outputs, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
             loss = criterion(outputs, labels)
             test_loss += loss.item()
             running_loss += loss.item()
@@ -68,8 +78,8 @@ def test(epoch:int):
                 running_loss = 0.
         
         test_loss /= len(test_loader)
-    
-    return test_loss
+        test_acc = correct / total
+    return test_loss, test_acc
 
 def main(epoch_num:int=2):
     """
@@ -78,16 +88,25 @@ def main(epoch_num:int=2):
     -----
     - epoch_num = number of training epochs, default 2
     """
+    best_performance = None
+
     if not os.path.exists(f'classifier/models/{current_time}'):
-        os.makedirs(f'models/{current_time}')
+        os.makedirs(f'classifier/models/{current_time}')
+        print(f"[INFO] Created a models dir: classifier/models/{current_time}")
+
     for epoch in tqdm(range(epoch_num)):
-        train_loss =train(epoch)
-        test_loss = test(epoch)
+        train_loss, train_acc = train(epoch)
+        test_loss, test_acc = test(epoch)
         print(f'[INFO] Epoch {epoch+1}/{epoch_num}, Train loss: {train_loss:.4f}, Test loss: {test_loss:.4f}')
+        print(f'[INFO] Epoch {epoch+1}/{epoch_num}, Train Accuracy: {train_acc:.2%}, Test Accuracy: {test_acc:.2%}')
         writer.add_scalar('Train Loss [epoch]', train_loss, epoch)
         writer.add_scalar('Test Loss [epoch]', test_loss, epoch)
-        
-        torch.save(model.state_dict(), f'classifier/models/{current_time}/epoch_{epoch}_weights.pth')
+        writer.add_scalar('Train Accuracy [%]', train_acc * 100, epoch)
+        writer.add_scalar('Test Accuracy [%]', test_acc * 100, epoch)
+
+        if best_performance is None or test_acc > best_performance:
+            best_performance = test_acc
+            torch.save(model.state_dict(), f'classifier/models/{current_time}/epoch_{epoch}_weights.pth')
 
     print("[INFO] Finished traning!")
 
@@ -104,7 +123,7 @@ if __name__ == '__main__':
     optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
     writer = SummaryWriter(log_dir)
-    epoch_num = 5
+    epoch_num = 10
     main(epoch_num)
 
     
