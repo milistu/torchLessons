@@ -45,7 +45,7 @@ def imshow2(img):
     plt.imshow(np.transpose(np_img, (1, 2, 0)))
     plt.show()
 
-def imshow(img, labels):
+def imshow(img, labels, prediction=np.empty(0)):
     img = img / 2 + 0.5
     img = img.numpy()
     labels = labels.numpy()
@@ -56,8 +56,11 @@ def imshow(img, labels):
     for i in range(img.shape[0]):
         plt.subplot(1, img.shape[0], i+1)
         plt.imshow(np.transpose(img[i], (1, 2, 0)))
-        plt.subplots_adjust(wspace=0.5)
-        plt.title(classes[labels[i]])
+        plt.subplots_adjust(wspace=0.8)
+        text = 'L: ' + classes[labels[i]] +'  P: '+ classes[prediction[i]] if prediction.any() else classes[labels[i]]
+        # L - label
+        # P - prediction
+        plt.title(text, color='green')
     plt.show()
 
 
