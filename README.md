@@ -8,4 +8,4 @@ Here we cover the basics of PyTorch, from tensors and automatic differentiation 
   - datasets&dataloaders - creating custom dataset class and loading it for training/validation
 
 ## Classifier
-Training an image classification with resnet18 backbone and using TensorBoard for training monitoring.
+Training an image classification with resnet18 backbone and using TensorBoard for train monitoring.
