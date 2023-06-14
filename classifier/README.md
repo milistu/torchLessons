@@ -9,6 +9,6 @@ Here is how to load the pre-trained RESNET18 model, modify its architecture and 
 - Accuracy of the network on the 10000 test images: 70.38%
 
 ### Test 2
-Changed the last two linear layer sto ReLU, decreased dropout to 20%.
+Changed the last two linear layers to ReLU, decreased dropout to 20%.
 - Accuracy of the network on the 50000 train images: 74.26%
 - Accuracy of the network on the 10000 test images: 72.41%
