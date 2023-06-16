@@ -10,3 +10,4 @@ runs
 classifier/logs
 classifier/models
 classifier/__pycache__
+*VAE_gen_examples
